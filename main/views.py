@@ -19,12 +19,12 @@ def GetAllPosts(request):
     serializer = PostSerializer(posts, many=True)
     return Response(serializer.data)
 
-# @api_view(["GET"])
-# def GetAllPosts(request):
-#     posts = Post.objects.all()
-#     serializer = PostSerializer(posts, many=True)
-#     cached_posts = cache.get("posts")
-#     if cached_posts is not None:
-#         return Response({"fetched_from_redis": cached_posts})
-#     cache.set("posts", serializer.data, timeout=30)
-#     return Response({"fetched_from_database": serializer.data})
+@api_view(["GET"])
+def GetAllPostsCached(request):
+    posts = Post.objects.all()
+    serializer = PostSerializer(posts, many=True)
+    cached_posts = cache.get("posts")
+    if cached_posts is not None:
+        return Response({"fetched_from_redis": cached_posts})
+    cache.set("posts", serializer.data, timeout=30)
+    return Response({"fetched_from_database": serializer.data})

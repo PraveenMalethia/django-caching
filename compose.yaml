@@ -14,16 +14,15 @@ services:
       - POSTGRES_DB=postgres
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
     ports:
-      - 5432:5432
+      - 5432
     healthcheck:
       test: [ "CMD", "pg_isready" ]
       interval: 10s
       timeout: 5s
       retries: 5
-    networks: 
-      - django-network
 
-  redis:
+  redis-service:
+    restart: always
     image: redis:latest
     ports:
       - 6379:6379
@@ -31,6 +30,8 @@ services:
       - redis_data:/data
 
   django-server:
+    env_file:
+      - .env
     container_name: django_app
     volumes:
       - .:/code
@@ -39,15 +40,15 @@ services:
     ports:
       - 8000:8000
     environment:
-      - REDIS_HOST=redis
+      - REDIS_HOST=redis-service
       - REDIS_PORT=6379
-    networks: 
-      - django-network
 
     depends_on:
-      postgres-database:
-        condition: service_healthy
-
+      - redis-service
+      - postgres-database
+    # depends_on:
+    #   postgres-database:
+    #     condition: service_healthy
 volumes:
   db-data:
   redis_data:
@@ -55,7 +56,3 @@ volumes:
 secrets:
   db-password:
     file: db/password.txt
-
-networks:
-  django-network:
-    driver: bridge
