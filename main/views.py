@@ -19,6 +19,7 @@ def GetAllPosts(request):
     serializer = PostSerializer(posts, many=True)
     return Response(serializer.data)
 
+
 @api_view(["GET"])
 def GetAllPostsCached(request):
     posts = Post.objects.all()

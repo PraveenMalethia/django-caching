@@ -26,9 +26,13 @@ SECRET_KEY = os.environ["SECRET_KEY"]
 REDIS_HOST = os.environ["REDIS_HOST"]
 REDIS_PORT = os.environ["REDIS_PORT"]
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG_MODE = os.environ.get("DEBUG_MODE",False)
 
-ALLOWED_HOSTS = []
+DEBUG = True if int(DEBUG_MODE) == 1 else False
+
+print('DEBUG MODE -> ',DEBUG)
+
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition

@@ -11,7 +11,7 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=postgres
+      - POSTGRES_DB=${DB_NAME}
       - POSTGRES_PASSWORD_FILE=/run/secrets/db-password
     ports:
       - 5432
@@ -33,12 +33,17 @@ services:
     env_file:
       - .env
     container_name: django_app
+    #* Use in production, uncomment and all set.
+    # command: gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 8 --timeout 0 project.wsgi:application  
+    #! Use in development, remove when moving to production and use.
+    command: python manage.py runserver 0.0.0.0:8000 
     volumes:
-      - .:/code
+      - .:/app # this is volumne mounting , it is copying the current code into the /app in django-server filesystem
     build:
       context: .
       args:
         - SECRET_KEY=${SECRET_KEY}
+        - DEBUG_MODE=${DEBUG_MODE}
         - REDIS_HOST=${REDIS_HOST}
         - REDIS_PORT=${REDIS_PORT}
         - DB_NAME=${DB_NAME}
