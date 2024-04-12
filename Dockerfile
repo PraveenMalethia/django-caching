@@ -40,12 +40,21 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 # Switch to the non-privileged user to run the application.
 # USER appuser
-
+ARG SECRET_KEY , REDIS_HOST , REDIS_PORT , DB_NAME , DB_USER , DB_PASSWORD , DB_HOST , DB_PORT
 # Copy the source code into the container.
 COPY . .
 
 # Expose the port that the application listens on.
 EXPOSE 8000
 ENV PORT 8000
+
+# sets django secret key
+RUN export SECRET_KEY=$SECRET_KEY
+# sets redis related configs
+RUN export REDIS_PORT=$REDIS_PORT, REDIS_HOST=$REDIS_HOST
+# sets postgres related configs
+RUN export DB_USER=$DB_USER, DB_NAME=$DB_NAME, DB_PASSWORD=$DB_PASSWORD, DB_HOST=$DB_HOST, DB_PORT=$DB_PORT
+
+RUN python manage.py collectstatic --no-input
 # Run the application.
 CMD gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 8 --timeout 0 project.wsgi:application
