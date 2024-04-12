@@ -2,10 +2,14 @@ asgiref==3.8.1
 Django==5.0.4
 djangorestframework==3.15.1
 Faker==24.8.0
+gunicorn==21.2.0
 hiredis==2.3.2
-psycopg2-binary
+packaging==24.0
+psycopg2-binary==2.9.9
 python-dateutil==2.9.0.post0
 redis==5.0.3
+setuptools==69.1.1
 six==1.16.0
 sqlparse==0.4.4
 tzdata==2024.1
+wheel==0.43.0
