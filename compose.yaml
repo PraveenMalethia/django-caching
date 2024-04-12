@@ -22,12 +22,25 @@ services:
       retries: 5
 
   redis-service:
+    container_name: redis-server
     restart: always
     image: redis:latest
     ports:
       - 6379:6379
     volumes:
       - redis_data:/data
+
+  redis-gui:
+    container_name: redis-insight
+    restart: always
+    image: redis/redisinsight
+    ports:
+      - 5540:5540
+    volumes:
+      - redisinsight:/data
+
+    ## in order to connect redis gui to the redis server 
+    ## run `docker inspect container_id` to get the ip address of container and then use it to connect at http://127.0.0.1:5540 
 
   django-server:
     env_file:
@@ -38,7 +51,7 @@ services:
     #! Use in development, remove when moving to production and use.
     command: python manage.py runserver 0.0.0.0:8000 
     volumes:
-      - .:/app # this is volumne mounting , it is copying the current code into the /app in django-server filesystem
+      - .:/app # this is volumne mounting , it is copying the code of the current directory into the /app in django-server filesystem
     build:
       context: .
       args:
@@ -63,6 +76,7 @@ services:
 volumes:
   db-data:
   redis_data:
+  redisinsight:
 
 secrets:
   db-password:
