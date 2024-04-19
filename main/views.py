@@ -14,17 +14,30 @@ CACHE_TTL = getattr(settings, "CACHE_TTL", DEFAULT_TIMEOUT)
 
 @api_view(["GET"])
 def GetAllPosts(request):
-    posts = Post.objects.all()
+    posts = Post.objects.first()
     serializer = PostSerializer(posts, many=True)
     return Response(serializer.data)
 
 
 @api_view(["GET"])
 def GetAllPostsCached(request):
-    cached_posts = cache.get("posts")
-    if cached_posts is not None:
-        return Response({"fetched_from_redis": cached_posts})
-    posts = Post.objects.all()
-    json_posts = PostSerializer(posts, many=True).data
-    cache.set("posts", json_posts, timeout=15)
-    return Response({"fetched_from_database": json_posts})
+    cached_post = cache.get("post")
+    if cached_post is not None:
+        return Response({"fetched_from_redis": cached_post})
+    post = Post.objects.first()
+    json_post = PostSerializer(post, many=False).data
+    cache.set("post", json_post, timeout=15)
+    return Response({"fetched_from_database": json_post})
+
+@api_view(["INVALIDATEANDUPDATE","PUT"])
+def UpdatePost(request):
+    post = Post.objects.first()
+    post.title = request.data.get('title',None)
+    post.content = request.data.get('content',None)
+    post.save()
+    json_post = PostSerializer(post, many=False).data
+    if request.method == 'INVALIDATEANDUPDATE':
+        cache.delete("post")
+        cache.set("post", json_post, timeout=15)
+    return Response({"post": json_post})
+
