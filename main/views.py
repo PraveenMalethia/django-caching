@@ -29,14 +29,14 @@ def GetAllPostsCached(request):
     cache.set("post", json_post, timeout=15)
     return Response({"fetched_from_database": json_post})
 
-@api_view(["INVALIDATEANDUPDATE","PUT"])
+@api_view(["INVALIDATE_AND_UPDATE","PUT"])
 def UpdatePost(request):
     post = Post.objects.first()
     post.title = request.data.get('title',None)
     post.content = request.data.get('content',None)
     post.save()
     json_post = PostSerializer(post, many=False).data
-    if request.method == 'INVALIDATEANDUPDATE':
+    if request.method == 'INVALIDATE_AND_UPDATE':
         cache.delete("post")
         cache.set("post", json_post, timeout=15)
     return Response({"post": json_post})
